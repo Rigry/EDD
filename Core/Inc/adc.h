@@ -6,7 +6,7 @@
 
 const uint16_t qty_point{18};
 
-enum {CURRENT};
+enum {CURRENT = 0};
 enum {VB = 0, VL = 1, VD = 2};
 
 class ADC_ : TickSubscriber
@@ -18,9 +18,12 @@ class ADC_ : TickSubscriber
 	uint16_t time_refresh{1000};
 
 	uint16_t time{0};
-	uint16_t buffer[3];
+	uint16_t buffer[3]{0};
 
-	int16_t arr_current[9]{0};
+	int16_t arr_current[4]{0};
+	int16_t arr_current_offset[4]{0};
+	uint16_t current_value_{0};
+	int16_t new_current_value{0};
 	uint8_t j{0};
 
 	bool work{false};
@@ -28,7 +31,7 @@ class ADC_ : TickSubscriber
 	bool error{false};
 	bool over_cur{false};
 
-	int16_t arr[9]{0};
+	int16_t arr[4]{0};
 
 	uint16_t max_current{16};
 	uint8_t over_current{0};
@@ -40,33 +43,28 @@ class ADC_ : TickSubscriber
 	void adc_injected_interrupt() {
 
 		HAL_ADCEx_InjectedStop_IT (&hadc2);
-		arr_current[j] = HAL_ADCEx_InjectedGetValue(&hadc2, CURRENT);
 
 		if(not work) {
+			arr_current_offset[j] = HAL_ADCEx_InjectedGetValue(&hadc2, CURRENT);
 			offset_I = 0;
-			for (auto i = 0; i < 9; i++) {
-				offset_I += arr_current[i];
+			for (auto i = 0; i < 4; i++) {
+				offset_I += arr_current_offset[i];
 			}
-			offset_I /= (9);
-
+			offset_I /= (4);
 			over_current = 0;
+			new_current_value = 0;
+			current_value_ = 0;
 
 		} else if (work) {
 
-			arr[j] = abs(arr_current[j] - offset_I);
+			arr_current[j] = HAL_ADCEx_InjectedGetValue(&hadc2, CURRENT);
 
-			if (arr[j] / 21 >= max_current) {
-				over_current++;
-				if (over_current >= 4)
-					over_cur = true;
-			}
+			new_current_value = abs(arr_current[j] - offset_I);
+			current_value_ += (new_current_value - current_value_) * 10 / 40;
 		}
 
-		if (j < 8) j++;
-		else {
-			j = 0;
-			over_current = 0;
-		}
+		if (j < 3) j++;
+		else j = 0;
 	}
 
 	using Parent = ADC_;
@@ -120,18 +118,23 @@ public:
 		return buffer[i];
 	}
 
+	uint16_t current_value() {
+		if (work)
+		return current_value_;
+		else return 0;
+	}
+
 	bool is_error(){return error;}
 	void reset_error(){error = false;}
 	bool is_over_s(){return over_cur;}
 	void reset_over_s(){over_cur = false;}
-//	void what_Km(uint16_t k) {Km_check = k > 50 ? true : false;}
 
 	void notify(){
 		if (time++ >= time_refresh) {
 		   time = 0;
 		   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)buffer, qty_channel);
 		}
-		if( not time % 100 and not work)
+		if( not time % 10 and not work)
 			HAL_ADCEx_InjectedStart_IT(&hadc2);
 	}
 

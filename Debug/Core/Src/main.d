@@ -28,9 +28,9 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_tim_ex.h \
  ../Drivers/STM32F1xx_HAL_Driver/Inc/stm32f1xx_hal_uart.h \
  ../mculib/timers.h ../mculib/subscriber.h ../mculib/static_vector.h \
- ../mculib/systick.h ../Core/Inc/convertor.h ../Core/Inc/adc.h \
- ../Core/Inc/interrupt.h ../Core/Inc/service.h ../Core/Inc/uart.h \
- ../Core/Inc/net_buffer.h ../Core/Inc/pin.h
+ ../mculib/systick.h ../Core/Inc/driver.h ../Core/Inc/pin.h \
+ ../Core/Inc/service.h ../Core/Inc/adc.h ../Core/Inc/interrupt.h \
+ ../Core/Inc/uart.h ../Core/Inc/net_buffer.h ../Core/Inc/convertor.h
 
 ../Core/Inc/main.h:
 
@@ -98,16 +98,18 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
 
 ../mculib/systick.h:
 
-../Core/Inc/convertor.h:
+../Core/Inc/driver.h:
+
+../Core/Inc/pin.h:
+
+../Core/Inc/service.h:
 
 ../Core/Inc/adc.h:
 
 ../Core/Inc/interrupt.h:
 
-../Core/Inc/service.h:
-
 ../Core/Inc/uart.h:
 
 ../Core/Inc/net_buffer.h:
 
-../Core/Inc/pin.h:
+../Core/Inc/convertor.h:

@@ -1,5 +1,6 @@
 #pragma once
 
+#include "adc.h"
 #include "interrupt.h"
 #include "uart.h"
 
@@ -40,7 +41,7 @@ struct Out_data{
 	Error error;             // 4
 };
 
-constexpr float k_adc   = 3.3 / 4095;
+constexpr float k_adc   = 3.35 / 4025;
 constexpr float k_adc_i = 3 * k_adc / 2 / 0.0167; // 3 и 2 потому что делитель 10 и 20 кОм, 0,025 В/А
 
 template<class In_data_t, class Out_data_t>
@@ -130,24 +131,25 @@ public:
 
 	void operator()(){
 
-//		outData.current        = (abs(adc.value(PS) - adc.offset_I_S)) * 100 / 21;
+		outData.current        = k_adc * (adc.current_value() * 30 / 20) * 1000;
 		outData.voltage_board  = k_adc * adc[VB] * 100;
 		outData.voltage_logic  = k_adc * adc[VL] * 100;
 		outData.voltage_drive  = k_adc * adc[VD] * 100;
 
-		outData.error.voltage_board_low = (outData.voltage_board <= 18);
-		outData.error.voltage_logic_low = (outData.voltage_logic <= 18);
-		outData.error.voltage_drive_low = (outData.voltage_drive <= 18);
+		outData.error.current           = (outData.current >= 250);
+		outData.error.voltage_board_low = (outData.voltage_board <= 180);
+		outData.error.voltage_logic_low = (outData.voltage_logic <= 180);
+		outData.error.voltage_drive_low = (outData.voltage_drive <= 180);
 
 		kolhoz ^= timer.event();
 
 		if (event or kolhoz) {
 			if(uart.buffer[0] == 4 or kolhoz) {
 				uart.buffer.clear();
-				uart.buffer << outData.voltage_board
+				uart.buffer << outData.current
+							<< outData.voltage_board
 						    << outData.voltage_logic
 							<< outData.voltage_drive
-							<< outData.current
 							<< arOutData[4];
 
 			} else if(uart.buffer[0] == '+') {
@@ -181,3 +183,36 @@ void HAL_UARTEx_RxEventCallback(UART_HandleTypeDef *huart, uint16_t Size) {
 		interrupt_uart.interrupt();
 	}
 }
+
+#define b0 1
+#define b1 2
+#define b2 4
+#define b3 8
+#define b4 16
+#define b5 32
+#define b6 64
+#define b7 128
+#define b8 256
+#define b9 512
+#define b10 1024
+#define b11 2048
+#define b12 4096
+#define b13 8192
+#define b14 16384
+#define b15 32768
+#define b16 (1 << 16)
+#define b17 (1 << 17)
+#define b18 (1 << 18)
+#define b19 (1 << 19)
+#define b20 (1 << 20)
+#define b21 (1 << 21)
+#define b22 (1 << 22)
+#define b23 (1 << 23)
+#define b24 (1 << 24)
+#define b25 (1 << 25)
+#define b26 (1 << 26)
+#define b27 (1 << 27)
+#define b28 (1 << 28)
+#define b29 (1 << 29)
+#define b30 (1 << 30)
+#define b31 (unsigned int)(1 << 31)

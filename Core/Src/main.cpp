@@ -75,7 +75,7 @@ static void MX_USART3_UART_Init(void);
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 
-#include "convertor.h"
+#include "driver.h"
 
 /* USER CODE END 0 */
 
@@ -107,17 +107,18 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
+  MX_DMA_Init();
   MX_ADC1_Init();
   MX_CAN_Init();
   MX_TIM1_Init();
-  MX_DMA_Init();
+
   MX_ADC2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
   /* USER CODE BEGIN 2 */
 
-  decltype(auto) led_red    = Pin{GPIOB, LED_RED_Pin     };
-  decltype(auto) led_green  = Pin{GPIOB, LED_GREEN_Pin   };
+  decltype(auto) led_red    = Pin{GPIOA, LED_RED_Pin     };
+  decltype(auto) led_green  = Pin{GPIOA, LED_GREEN_Pin   };
   decltype(auto) led_can    = Pin{GPIOC, LED_CAN_Pin     };
   decltype(auto) open_in    = Pin{GPIOC, open_in_Pin     };
   decltype(auto) close_in   = Pin{GPIOC, close_in_Pin    };
@@ -128,14 +129,24 @@ int main(void)
   decltype(auto) end        = Pin{GPIOC, end_in_Pin      };
   decltype(auto) en_holla   = Pin{GPIOC, enable_holla_Pin};
   decltype(auto) error_holla= Pin{GPIOC, error_holla_Pin };
+  decltype(auto) phase_a_low= Pin{GPIOB, CH1_LOW_Pin     };
+  decltype(auto) phase_b_low= Pin{GPIOB, CH2_LOW_Pin     };
+  decltype(auto) phase_c_low= Pin{GPIOB, CH3_LOW_Pin     };
 
-  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 100};
+  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 500};
 
   decltype(auto) uart = UART_<>{led_can};
 
   decltype(auto) service = Service<In_data, Out_data>{adc, uart, interrupt_dma, interrupt_uart};
 
-  decltype(auto) convertor = Convertor{adc, service, period_callback, adc_comparator_callback, led_red, led_green, open_in, close_in, open_out, close_out, open_fb, close_fb, end, en_holla, error_holla};
+  decltype(auto) convertor = Convertor{adc, period_callback, adc_comparator_callback, ext_holla_1_callback
+	  	  	  	  	  	  	  	  	 , led_red
+	  	  	  	  	  	  	  	  	 , en_holla, error_holla
+									 , phase_a_low, phase_b_low, phase_c_low
+  	  	  	  	  	  	  	  	  	  };
+
+
+  decltype(auto) driver = Driver{service, convertor, led_red, led_green, open_in, close_in, open_out, close_out, open_fb, close_fb, end};
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -143,7 +154,7 @@ int main(void)
   while (1)
   {
 
-	  convertor();
+	  driver();
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -365,7 +376,7 @@ static void MX_TIM1_Init(void)
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 7199;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
@@ -436,9 +447,9 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 39;
+  htim3.Init.Prescaler = 7199;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim3.Init.Period = 49999;
+  htim3.Init.Period = 499;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim3.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_ENABLE;
   if (HAL_TIM_OC_Init(&htim3) != HAL_OK)
@@ -542,7 +553,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LED_CAN_Pin|enable_holla_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, open_out_Pin|fb_open_Pin|fb_close_Pin|close_out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CH1_LOW_Pin|CH2_LOW_Pin|CH3_LOW_Pin|open_out_Pin
+                          |fb_open_Pin|fb_close_Pin|close_out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : open_in_Pin close_in_Pin end_in_Pin error_holla_Pin */
   GPIO_InitStruct.Pin = open_in_Pin|close_in_Pin|end_in_Pin|error_holla_Pin;
@@ -566,14 +578,21 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin : holla_1_Pin */
   GPIO_InitStruct.Pin = holla_1_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(holla_1_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : holla_2_Pin holla_3_Pin */
   GPIO_InitStruct.Pin = holla_2_Pin|holla_3_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING_FALLING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : CH1_LOW_Pin CH2_LOW_Pin CH3_LOW_Pin */
+  GPIO_InitStruct.Pin = CH1_LOW_Pin|CH2_LOW_Pin|CH3_LOW_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_HIGH;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
   /*Configure GPIO pins : open_out_Pin fb_open_Pin fb_close_Pin close_out_Pin */

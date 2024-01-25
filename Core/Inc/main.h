@@ -78,6 +78,12 @@ void Error_Handler(void);
 #define holla_3_Pin GPIO_PIN_1
 #define holla_3_GPIO_Port GPIOB
 #define holla_3_EXTI_IRQn EXTI1_IRQn
+#define CH1_LOW_Pin GPIO_PIN_13
+#define CH1_LOW_GPIO_Port GPIOB
+#define CH2_LOW_Pin GPIO_PIN_14
+#define CH2_LOW_GPIO_Port GPIOB
+#define CH3_LOW_Pin GPIO_PIN_15
+#define CH3_LOW_GPIO_Port GPIOB
 #define end_in_Pin GPIO_PIN_6
 #define end_in_GPIO_Port GPIOC
 #define error_holla_Pin GPIO_PIN_7
