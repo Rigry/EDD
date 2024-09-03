@@ -90,9 +90,9 @@ public:
 			case wait:
 				if(enable) {
 					if(open_in and not begin and not clamp) {
-						convertor.power(99); convertor.forward(); state = opening;
+						convertor.power(95); convertor.forward(); state = opening;
 					} else if(close_in and not end and not clamp) {
-						convertor.power(99); convertor.back(); state = closing;
+						convertor.power(95); convertor.back(); state = closing;
 					} else if(not open_in and not close_in) {
 						clamp = false; begin = false; convertor.stop();
 					} else {

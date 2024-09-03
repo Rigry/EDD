@@ -58,21 +58,21 @@ convertor.h:61:8:virtual void Convertor::Holla_1_interrupt::interrupt()	16	stati
 convertor.h:66:7:void Convertor::period_interrupt()	16	static
 convertor.h:71:7:void Convertor::comparator_interrupt()	16	static
 convertor.h:75:7:void Convertor::holla_1_callback()	24	static
-convertor.h:155:2:Convertor::Convertor(ADC_&, Interrupt&, Interrupt&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	32	static
-convertor.h:173:7:void Convertor::forward()	16	static
-convertor.h:185:7:void Convertor::back()	16	static
-convertor.h:196:7:void Convertor::power(uint16_t)	16	static
-convertor.h:200:10:int16_t Convertor::steps()	16	static
-convertor.h:204:7:void Convertor::reset_steps()	16	static
-convertor.h:212:7:void Convertor::fix()	16	static
-convertor.h:223:7:void Convertor::pusk()	16	static
-convertor.h:247:7:void Convertor::stop()	16	static
-convertor.h:281:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:288:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
-convertor.h:295:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
+convertor.h:176:2:Convertor::Convertor(ADC_&, Interrupt&, Interrupt&, Interrupt&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	32	static
+convertor.h:194:7:void Convertor::forward()	16	static
+convertor.h:206:7:void Convertor::back()	16	static
+convertor.h:217:7:void Convertor::power(uint16_t)	16	static
+convertor.h:222:10:int16_t Convertor::steps()	16	static
+convertor.h:226:7:void Convertor::reset_steps()	16	static
+convertor.h:234:7:void Convertor::fix()	16	static
+convertor.h:245:7:void Convertor::pusk()	16	static
+convertor.h:273:7:void Convertor::stop()	16	static
+convertor.h:307:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+convertor.h:314:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
+convertor.h:321:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
 driver.h:33:2:Driver::Driver(Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
 driver.h:43:7:void Driver::operator()()	24	static
-main.cpp:86:5:int main()	520	static
+main.cpp:86:5:int main()	528	static
 main.cpp:169:6:void SystemClock_Config()	96	static
 main.cpp:215:13:void MX_ADC1_Init()	24	static
 main.cpp:276:13:void MX_ADC2_Init()	40	static

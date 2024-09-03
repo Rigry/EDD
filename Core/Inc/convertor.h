@@ -20,7 +20,7 @@ class Convertor {
 	Pin& phase_c_low;
 
 	uint8_t hallpos{1};
-	int16_t step{0};
+	int32_t step{0};
 	int16_t max_steps{0};
 
 	uint16_t duty_cycle{0};
@@ -78,19 +78,25 @@ class Convertor {
 		switch (hallpos) {
 		case 6:
 			TIM1->CCR1 = 0;
+			phase_a_low = false;
 			if (not reverse) {
-				TIM1->CCR2 = duty_cycle;
+				TIM1->CCR3 = 0;
+				phase_b_low = false;
 				phase_c_low = true;
+				TIM1->CCR2 = duty_cycle;
 			} else {
 				phase_b_low = true;
 				TIM1->CCR3 = duty_cycle;
 			}
 			break;
 		case 2:
+			TIM1->CCR3 = 0;
 			phase_c_low = false;
 			if (not reverse) {
 				phase_a_low = true;
+				phase_b_low = false;
 				TIM1->CCR2 = duty_cycle;
+				TIM1->CCR1 = 0;
 			} else {
 				TIM1->CCR1 = duty_cycle;
 				phase_b_low = true;
@@ -98,18 +104,24 @@ class Convertor {
 			break;
 		case 3:
 			TIM1->CCR2 = 0;
+			phase_b_low = false;
 			if (not reverse) {
 				phase_a_low = true;
+				phase_c_low = false;
 				TIM1->CCR3 = duty_cycle;
+				TIM1->CCR1 = 0;
 			} else {
 				TIM1->CCR1 = duty_cycle;
 				phase_c_low = true;
 			}
 			break;
 		case 1:
+			TIM1->CCR1 = 0;
 			phase_a_low = false;
 			if (not reverse) {
 				phase_b_low = true;
+				phase_c_low = false;
+				TIM1->CCR2 = 0;
 				TIM1->CCR3 = duty_cycle;
 			} else {
 				TIM1->CCR2 = duty_cycle;
@@ -118,8 +130,14 @@ class Convertor {
 			break;
 		case 5:
 			TIM1->CCR3 = 0;
+			phase_c_low = false;
 			if (not reverse) {
+				TIM1->CCR2 = 0;
+				phase_a_low = false;
+				phase_b_low = true;
 				TIM1->CCR1 = duty_cycle;
+				TIM1->CCR2 = 0;
+				phase_a_low = false;
 				phase_b_low = true;
 			} else {
 				phase_a_low = true;
@@ -128,10 +146,13 @@ class Convertor {
 			}
 			break;
 		case 4:
+			TIM1->CCR3 = 0;
 			phase_b_low = false;
 			if (not reverse) {
-				TIM1->CCR1 = duty_cycle;
+				TIM1->CCR2 = 0;
+				phase_a_low = false;
 				phase_c_low = true;
+				TIM1->CCR1 = duty_cycle;
 			} else {
 				phase_a_low = true;
 				TIM1->CCR3 = duty_cycle;
@@ -195,6 +216,7 @@ public:
 
 	void power(uint16_t percent) {
 		duty_cycle = 7200/100 * percent - 1;
+		if (duty_cycle > 7199) duty_cycle = 7199;
 	}
 
 	int16_t steps(){
@@ -225,6 +247,10 @@ public:
 		phase_a_low = false;
 		phase_b_low = false;
 		phase_c_low = false;
+
+		TIM1->CCR1 = 0;
+		TIM1->CCR2 = 0;
+		TIM1->CCR3 = 0;
 
 		TIM3->ARR = 99;
 
