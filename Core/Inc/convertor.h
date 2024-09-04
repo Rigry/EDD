@@ -15,9 +15,9 @@ class Convertor {
 	Pin &led_red;
 	Pin& en_holla;
 	Pin& error_holla;
-	Pin& phase_a_low;
-	Pin& phase_b_low;
-	Pin& phase_c_low;
+//	Pin& phase_a_low;
+//	Pin& phase_b_low;
+//	Pin& phase_c_low;
 
 	uint8_t hallpos{1};
 	int32_t step{0};
