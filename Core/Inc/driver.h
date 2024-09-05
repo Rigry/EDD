@@ -62,84 +62,85 @@ public:
 
 		led_red = not enable;
 		led_green = not led_red;
+		convertor.forward();
 
-		if(convertor.timer.timePassed() >= 100) {
-			clamp = true;
-			convertor.timer.stop();
-		}
+//		if(convertor.timer.timePassed() >= 100) {
+//			clamp = true;
+//			convertor.timer.stop();
+//		}
 
 //		if (convertor.timer.event()) {
 //			clamp = bool (convertor.steps() == prev_step);
 //			prev_step = convertor.steps();
 //		}
 //
-		if(clamp) {
-
-			if(state == closing) {
-				convertor.stop();
-				state = wait;
-				convertor.stop();
+//		if(clamp) {
+//
+//			if(state == closing) {
+//				convertor.stop();
+//				state = wait;
+//				convertor.stop();
 //				delay.start(100);
 //				clamp = false;
-			} else if(state == opening) {
-				state = wait;
-			}
-		}
+//			} else if(state == opening) {
+//				state = wait;
+//			}
+//		}
+//
+//		switch(state) {
+//			case wait:
+//				if(enable) {
+//					if(open_in and not begin and not clamp) {
+//						convertor.power(95); convertor.forward(); state = opening;
+//					} else if(close_in and not end and not clamp) {
+//						convertor.power(95); convertor.back(); state = closing;
+//					} else if(not open_in and not close_in) {
+//						clamp = false; begin = false; convertor.stop();
+//					} else {
+//						 convertor.stop();
+//					}
+//				}
+//				if(end) convertor.reset_steps();
+//			break;
+//			case opening:
+//
+//				if(convertor.steps() >= 300) {
+//					convertor.power(30);
+//				}
+//
+//				if( (not open_in or convertor.steps() >= 370)) {
+//					state = wait;
+//					convertor.stop();
+//					if(convertor.steps() >= 370) {
+//						begin = true;
+//						convertor.fix();
+//					}
+//
+//				}
+//
+//			break;
+//			case closing:
+//				if (convertor.steps() <= 70) {
+//					convertor.power(30);
+//				}
+//
+//				if(not close_in or end) {
+//					state = wait;
+//					convertor.stop();
+//					if(end) convertor.reset_steps();
+//				}
+//
+//			break;
+//			case alarm:
+//				if (delay.done()) {
+//					clamp = false;
+//					delay.stop();
+////					convertor.power(99); convertor.forward();
+//				} else if (delay.isCount()) {
+//					convertor.stop();
+//				}
+//			break;
 
-		switch(state) {
-			case wait:
-				if(enable) {
-					if(open_in and not begin and not clamp) {
-						convertor.power(95); convertor.forward(); state = opening;
-					} else if(close_in and not end and not clamp) {
-						convertor.power(95); convertor.back(); state = closing;
-					} else if(not open_in and not close_in) {
-						clamp = false; begin = false; convertor.stop();
-					} else {
-						 convertor.stop();
-					}
-				}
-				if(end) convertor.reset_steps();
-			break;
-			case opening:
-
-				if(convertor.steps() >= 300) {
-					convertor.power(30);
-				}
-
-				if( (not open_in or convertor.steps() >= 370)) {
-					state = wait;
-					convertor.stop();
-					if(convertor.steps() >= 370) {
-						begin = true;
-						convertor.fix();
-					}
-
-				}
-
-			break;
-			case closing:
-				if (convertor.steps() <= 70) {
-					convertor.power(30);
-				}
-
-				if(not close_in or end) {
-					state = wait;
-					convertor.stop();
-					if(end) convertor.reset_steps();
-				}
-
-			break;
-			case alarm:
-				if (delay.done()) {
-					clamp = false;
-					delay.stop();
-//					convertor.power(99); convertor.forward();
-				} else if (delay.isCount()) {
-					convertor.stop();
-				}
-			break;
-
-		} //switch(state)
+//		} //switch(state)
 	} //void operator()
 };

@@ -138,7 +138,7 @@ int main(void)
 
   decltype(auto) service = Service<In_data, Out_data>{adc, uart, interrupt_dma, interrupt_uart};
 
-  decltype(auto) convertor = Convertor{adc, period_callback, adc_comparator_callback, ext_holla_1_callback
+  decltype(auto) convertor = Convertor{adc, service, period_callback, adc_comparator_callback, ext_holla_1_callback
 	  	  	  	  	  	  	  	  	 , led_red
 	  	  	  	  	  	  	  	  	 , en_holla, error_holla
 //									 , phase_a_low, phase_b_low, phase_c_low

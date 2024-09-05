@@ -133,8 +133,8 @@ public:
 
 		outData.current        = k_adc * (adc.current_value() * 30 / 20) * 1000;
 		outData.voltage_board  = k_adc * adc[VB] * 100;
-		outData.voltage_logic  = k_adc * adc[VL] * 100;
-		outData.voltage_drive  = k_adc * adc[VD] * 100;
+		outData.voltage_logic  = adc[VL];
+		outData.voltage_drive  = adc[VD];
 
 		outData.error.current           = (outData.current >= 250);
 		outData.error.voltage_board_low = (outData.voltage_board <= 180);
