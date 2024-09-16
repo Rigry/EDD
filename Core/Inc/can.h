@@ -3,20 +3,33 @@
 #include "pin.h"
 #include "interrupt.h"
 
-struct Control {
 
+
+struct Control {
+	bool open     : 1;
+	bool close    : 1;
+	uint16_t : 14;
 };
 
 struct State {
-
+	bool open     : 1;
+	bool close    : 1;
+	bool clamp    : 1;
+	uint16_t : 13;
 };
 
 struct In_id{
 	Control control;
+	uint16_t res1;
+	uint16_t res2;
+	uint16_t res3;
 };
 
 struct Out_id{
-	State state{0};
+	State state;
+	uint16_t res1;
+	uint16_t res2;
+	uint16_t res3;
 };
 
 template <class InID_t, class OutID_t>
@@ -78,8 +91,8 @@ public:
 	  arInID[0] = arInID[1] = arInID[2] = arInID[3] = arInID[4] = arInID[5] = arInID[6] = arInID[7]= 0;
 	  arOutID[0] = arOutID[1] = arOutID[2] = arOutID[3] = arOutID[4] = arOutID[5] = arOutID[6] = arOutID[7] = 0;
 	  subscribed = false;
-//	  if (time_refresh > 0)
-//		  subscribe();
+	  if (time_refresh > 0)
+		  subscribe();
   }
 
   static const uint8_t InIDQty  = sizeof(InID_t);
@@ -108,6 +121,9 @@ public:
 
 
   void transmit(){
+	  	outID.res1 = 0xFFFF;
+	  	outID.res2 = 0xFFFF;
+	  	outID.res3 = 0xFFFF;
 	  	rts = true;
 		TxHeader.DLC = 8;
 		TxHeader.ExtId = 0;
@@ -127,11 +143,11 @@ public:
 
 		switch(RxHeader.StdId) {
 			case 0x17:
-				inID.control.ignition = RxData[0] & (1 << 1);
+//				inID.control.ignition = RxData[0] & (1 << 1);
 				start_transmit();
 				break;
 			case 0x18:
-				inID.control.HV_off   = RxData[0] & (1 << 6);
+//				inID.control.HV_off   = RxData[0] & (1 << 6);
 				start_transmit();
 			break;
 //			case 0x10:
@@ -158,7 +174,7 @@ public:
 		  time = 0;
 		  transmit();
 	  }
-	  if(inID.control.on_off) stop_transmit();
+//	  if(inID.control.on_off) stop_transmit();
   }
 
 };

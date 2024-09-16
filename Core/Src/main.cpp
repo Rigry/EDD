@@ -107,10 +107,12 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_ADC1_Init();
   MX_CAN_Init();
-  MX_TIM1_Init();
   MX_DMA_Init();
+  MX_ADC1_Init();
+
+  MX_TIM1_Init();
+
   MX_ADC2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
@@ -135,6 +137,7 @@ int main(void)
   decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 200};
 
   decltype(auto) uart = UART_<>{led_can};
+  decltype(auto) can = CAN<In_id, Out_id>{led_can, interrupt_can_rx, 250};
 
   decltype(auto) service = Service<In_data, Out_data>{adc, uart, interrupt_dma, interrupt_uart};
 
@@ -145,7 +148,7 @@ int main(void)
   	  	  	  	  	  	  	  	  	  };
 
 
-  decltype(auto) driver = Driver{service, convertor, led_red, led_green, open_in, close_in, open_out, close_out, open_fb, close_fb, end};
+  decltype(auto) driver = Driver{can, service, convertor, led_red, led_green, open_in, close_in, open_out, close_out, open_fb, close_fb, end};
   /* USER CODE END 2 */
 
   /* Infinite loop */
@@ -349,6 +352,23 @@ static void MX_CAN_Init(void)
     Error_Handler();
   }
   /* USER CODE BEGIN CAN_Init 2 */
+  CAN_FilterTypeDef canfilterconfig;
+
+    	canfilterconfig.FilterActivation = CAN_FILTER_ENABLE;
+    	canfilterconfig.FilterBank = 0;
+    	canfilterconfig.FilterFIFOAssignment = CAN_FILTER_FIFO0;
+    	canfilterconfig.FilterIdHigh = 0;
+    	canfilterconfig.FilterIdLow = 0;
+    	canfilterconfig.FilterMaskIdHigh = 0;
+    	canfilterconfig.FilterMaskIdLow = 0;
+    	canfilterconfig.FilterMode = CAN_FILTERMODE_IDMASK;
+    	canfilterconfig.FilterScale = CAN_FILTERSCALE_32BIT;
+    	canfilterconfig.SlaveStartFilterBank = 14; // how many filters to assign to the CAN1 (master can)
+
+    	HAL_CAN_ConfigFilter(&hcan, &canfilterconfig);
+
+    	HAL_CAN_Start(&hcan);
+    	HAL_CAN_ActivateNotification(&hcan, CAN_IT_RX_FIFO0_MSG_PENDING);
 
   /* USER CODE END CAN_Init 2 */
 

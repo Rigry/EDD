@@ -3,11 +3,13 @@
 #include "pin.h"
 #include "service.h"
 #include "convertor.h"
+#include "can.h"
 
 class Driver {
 
-	enum State {wait, opening, closing, clamp_opening, clamp_closing, opening_driver, closing_driver, alarm} state{wait};
+	enum State {wait, opening, closing, clamp_opening, clamp_closing, alarm} state{wait};
 
+	CAN<In_id, Out_id>& can;
 	Service<In_data, Out_data> &service;
 	Convertor& convertor;
 	Pin &led_red;
@@ -37,10 +39,10 @@ class Driver {
 
 public:
 
-	Driver( Service<In_data, Out_data>& service, Convertor& convertor
+	Driver( CAN<In_id, Out_id>& can, Service<In_data, Out_data>& service, Convertor& convertor
 		  , Pin& led_red, Pin& led_green, Pin& open_in, Pin& close_in
 		  , Pin& open_out, Pin& close_out, Pin& open_fb, Pin& close_fb, Pin& end)
-		  : service{service}, convertor{convertor}
+		  : can{can}, service{service}, convertor{convertor}
 	      , led_red{led_red}, led_green{led_green}, open_in{open_in}, close_in{close_in}
 	      , open_out{open_out}, close_out{close_out}, open_fb{open_fb}, close_fb{close_fb}, end{end}
 	{
@@ -122,9 +124,13 @@ public:
 //			}
 		}
 
+		can.outID.state.open = begin;
+		can.outID.state.close = bool(end);
+		can.outID.state.clamp = clamp;
+
+
 		switch(state) {
 			case wait:
-
 				if(end) {convertor.reset_steps(); convertor.fix();}
 				if((abs(convertor.steps()) >= (200) or fix)) {
 					convertor.current_fix();
@@ -133,15 +139,15 @@ public:
 				}
 				convertor.equal_step();
 				if(enable) {
-					if((open_in and not begin and not clamp and not clamp_open)/* or clamp_open or not clamp*/) {
+					if(( (open_in or can.inID.control.open) and not begin and not clamp and not clamp_open)/* or clamp_open or not clamp*/) {
 						convertor.power(95); convertor.forward(); state = opening; fix = false;/*going.start(5);*/ // back для водителя forward для пассажира // 60 passenger 90 driver
-					} else if(close_in and not end and not clamp and not clamp_close) {
+					} else if( (close_in or can.inID.control.close) and not end and not clamp and not clamp_close) {
 						fix = false;
 						convertor.stop();
 						power = 70; //was 50
 						convertor.power(power); convertor.back(); state = closing; // // forward для водителя  back для пассажира
 //						going.start(5);
-					} else if(not open_in and not close_in) {
+					} else if ( (not open_in and not close_in) and (not can.inID.control.open and not can.inID.control.close) ){
 						clamp = false;  clamp_open = false; clamp_close = false;
 					} else if (clamp_open and clamp_close){
 						 convertor.stop();

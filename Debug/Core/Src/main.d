@@ -30,7 +30,8 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
  ../mculib/timers.h ../mculib/subscriber.h ../mculib/static_vector.h \
  ../mculib/systick.h ../Core/Inc/driver.h ../Core/Inc/pin.h \
  ../Core/Inc/service.h ../Core/Inc/adc.h ../Core/Inc/interrupt.h \
- ../Core/Inc/uart.h ../Core/Inc/net_buffer.h ../Core/Inc/convertor.h
+ ../Core/Inc/uart.h ../Core/Inc/net_buffer.h ../Core/Inc/convertor.h \
+ ../Core/Inc/can.h
 
 ../Core/Inc/main.h:
 
@@ -113,3 +114,5 @@ Core/Src/main.o: ../Core/Src/main.cpp ../Core/Inc/main.h \
 ../Core/Inc/net_buffer.h:
 
 ../Core/Inc/convertor.h:
+
+../Core/Inc/can.h:
