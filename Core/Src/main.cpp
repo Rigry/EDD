@@ -107,12 +107,10 @@ int main(void)
 
   /* Initialize all configured peripherals */
   MX_GPIO_Init();
-  MX_CAN_Init();
-  MX_DMA_Init();
   MX_ADC1_Init();
-
+  MX_CAN_Init();
   MX_TIM1_Init();
-
+  MX_DMA_Init();
   MX_ADC2_Init();
   MX_TIM3_Init();
   MX_USART3_UART_Init();
@@ -395,7 +393,7 @@ static void MX_TIM1_Init(void)
   /* USER CODE END TIM1_Init 1 */
   htim1.Instance = TIM1;
   htim1.Init.Prescaler = 0;
-  htim1.Init.CounterMode = TIM_COUNTERMODE_CENTERALIGNED1;
+  htim1.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim1.Init.Period = 7199;
   htim1.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim1.Init.RepetitionCounter = 0;
@@ -432,8 +430,8 @@ static void MX_TIM1_Init(void)
   sBreakDeadTimeConfig.OffStateRunMode = TIM_OSSR_DISABLE;
   sBreakDeadTimeConfig.OffStateIDLEMode = TIM_OSSI_DISABLE;
   sBreakDeadTimeConfig.LockLevel = TIM_LOCKLEVEL_OFF;
-  sBreakDeadTimeConfig.DeadTime = 115;
-  sBreakDeadTimeConfig.BreakState = TIM_BREAK_ENABLE;
+  sBreakDeadTimeConfig.DeadTime = 0;
+  sBreakDeadTimeConfig.BreakState = TIM_BREAK_DISABLE;
   sBreakDeadTimeConfig.BreakPolarity = TIM_BREAKPOLARITY_HIGH;
   sBreakDeadTimeConfig.AutomaticOutput = TIM_AUTOMATICOUTPUT_DISABLE;
   if (HAL_TIMEx_ConfigBreakDeadTime(&htim1, &sBreakDeadTimeConfig) != HAL_OK)
@@ -572,7 +570,8 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOC, LED_CAN_Pin|enable_holla_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, open_out_Pin|fb_open_Pin|fb_close_Pin|close_out_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, CH1_LOW_Pin|CH2_LOW_Pin|CH3_LOW_Pin|open_out_Pin
+                          |fb_open_Pin|fb_close_Pin|close_out_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : open_in_Pin close_in_Pin end_in_Pin error_holla_Pin */
   GPIO_InitStruct.Pin = open_in_Pin|close_in_Pin|end_in_Pin|error_holla_Pin;
@@ -606,8 +605,10 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : open_out_Pin fb_open_Pin fb_close_Pin close_out_Pin */
-  GPIO_InitStruct.Pin = open_out_Pin|fb_open_Pin|fb_close_Pin|close_out_Pin;
+  /*Configure GPIO pins : CH1_LOW_Pin CH2_LOW_Pin CH3_LOW_Pin open_out_Pin
+                           fb_open_Pin fb_close_Pin close_out_Pin */
+  GPIO_InitStruct.Pin = CH1_LOW_Pin|CH2_LOW_Pin|CH3_LOW_Pin|open_out_Pin
+                          |fb_open_Pin|fb_close_Pin|close_out_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
