@@ -9,16 +9,16 @@
 //#define STATIC_VECTOR_H_
 #pragma once
 
-template<class T, size_t size_>
+template<class T, uint8_t size_>
 class Static_vector
 {
     T vector [size_] ;
-    size_t end_i;
+    uint8_t end_i;
 public:
     Static_vector (){}
     void clear()  {end_i = 0;}
     uint8_t cend  () const {return end_i;}
-    size_t size ()  {return end_i;}
+    uint8_t size ()  {return end_i;}
     void push_back(T p)
     {
         if (end_i < size_)
@@ -38,7 +38,9 @@ public:
       for (uint8_t i = index; i < end_i; i++) {
           vector[i] = vector[i+1];
       }
+
       end_i--;
+
     }
 
     T operator[] (const size_t index) const

@@ -133,7 +133,7 @@ int main(void)
   decltype(auto) phase_b_low= Pin{GPIOB, CH2_LOW_Pin     };
   decltype(auto) phase_c_low= Pin{GPIOB, CH3_LOW_Pin     };
 
-  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 500};
+  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 200};
 
   decltype(auto) uart = UART_<>{led_can};
 

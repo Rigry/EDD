@@ -58,6 +58,7 @@
 extern DMA_HandleTypeDef hdma_adc1;
 extern ADC_HandleTypeDef hadc1;
 extern ADC_HandleTypeDef hadc2;
+extern TIM_HandleTypeDef htim1;
 extern TIM_HandleTypeDef htim3;
 extern DMA_HandleTypeDef hdma_usart3_tx;
 extern DMA_HandleTypeDef hdma_usart3_rx;
@@ -90,6 +91,18 @@ void NMI_Handler(void)
 void HardFault_Handler(void)
 {
   /* USER CODE BEGIN HardFault_IRQn 0 */
+
+	TIM1->CCR1 = 0;
+	TIM1->CCR2 = 0;
+	TIM1->CCR3 = 0;
+
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+
+	HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+
+	HAL_TIM_Base_Stop_IT(&htim3);
 
   /* USER CODE END HardFault_IRQn 0 */
   while (1)
@@ -189,6 +202,7 @@ void PendSV_Handler(void)
 void SysTick_Handler(void)
 {
   /* USER CODE BEGIN SysTick_IRQn 0 */
+
 
   /* USER CODE END SysTick_IRQn 0 */
   HAL_IncTick();

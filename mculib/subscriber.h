@@ -24,8 +24,10 @@ struct Publisher
     void unsubscribe(Subscriber* p) { subscriber.remove(p);  }
     void notify() {
       for(uint8_t i = 0; i < subscriber.cend(); i++){
-    	  if(subscriber[i] != 0)
+    	  if(subscriber[i] != 0) {
     		  subscriber[i]->notify();
+    	  } else
+    		  continue;
       }
     }
 };

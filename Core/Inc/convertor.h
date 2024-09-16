@@ -5,14 +5,16 @@
 #include "interrupt.h"
 #include "pin.h"
 
-class Convertor {
+uint8_t pin {0};
+
+class Convertor : TickSubscriber {
 
 	ADC_& adc;
 	Interrupt& period_callback;
 	Interrupt& adc_comparator_callback;
 	Interrupt& ext_holla_1_callback;
 
-	Pin &led_red;
+	Pin& led_red;
 	Pin& en_holla;
 	Pin& error_holla;
 	Pin& phase_a_low;
@@ -24,6 +26,13 @@ class Convertor {
 	int16_t max_steps{0};
 
 	uint16_t duty_cycle{0};
+
+	bool last_1{false};
+	bool last_2{false};
+
+	bool holla_1{false};
+	bool holla_2{false};
+	bool holla_3{false};
 
 	bool enable{false};
 	bool reverse{false};
@@ -73,101 +82,155 @@ class Convertor {
 	}
 
 	void holla_1_callback(){
+
+		holla_1 = HAL_GPIO_ReadPin(GPIOC, holla_1_Pin);
+		holla_2 = HAL_GPIO_ReadPin(GPIOB, holla_2_Pin);
+		holla_3 = HAL_GPIO_ReadPin(GPIOB, holla_3_Pin);
+
 		hallpos = ((HAL_GPIO_ReadPin(GPIOC, holla_1_Pin) << 2) | (HAL_GPIO_ReadPin(GPIOB, holla_2_Pin) << 1) | HAL_GPIO_ReadPin(GPIOB, holla_3_Pin));
 
 		switch (hallpos) {
 		case 6:
-			TIM1->CCR1 = 0;
-			phase_a_low = false;
 			if (not reverse) {
+				TIM1->CCR1 = 0;
+				TIM1->CCR2 = duty_cycle;
 				TIM1->CCR3 = 0;
+				phase_a_low = false;
 				phase_b_low = false;
 				phase_c_low = true;
-				TIM1->CCR2 = duty_cycle;
 			} else {
+				phase_a_low = false;
 				phase_b_low = true;
+				phase_c_low = false;
+				TIM1->CCR1 = 0;
+				TIM1->CCR2 = 0;
 				TIM1->CCR3 = duty_cycle;
 			}
 			break;
 		case 2:
-			TIM1->CCR3 = 0;
-			phase_c_low = false;
 			if (not reverse) {
 				phase_a_low = true;
 				phase_b_low = false;
-				TIM1->CCR2 = duty_cycle;
+				phase_c_low = false;
 				TIM1->CCR1 = 0;
+				TIM1->CCR2 = duty_cycle;
+				TIM1->CCR3 = 0;
 			} else {
 				TIM1->CCR1 = duty_cycle;
+				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
+				phase_a_low = false;
 				phase_b_low = true;
+				phase_c_low = false;
 			}
 			break;
 		case 3:
-			TIM1->CCR2 = 0;
-			phase_b_low = false;
 			if (not reverse) {
 				phase_a_low = true;
 				phase_c_low = false;
+				phase_b_low = false;
+				TIM1->CCR2 = 0;
 				TIM1->CCR3 = duty_cycle;
 				TIM1->CCR1 = 0;
 			} else {
 				TIM1->CCR1 = duty_cycle;
+				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
+				phase_a_low = false;
+				phase_b_low = false;
 				phase_c_low = true;
 			}
 			break;
 		case 1:
-			TIM1->CCR1 = 0;
-			phase_a_low = false;
 			if (not reverse) {
+				phase_a_low = false;
 				phase_b_low = true;
 				phase_c_low = false;
+				TIM1->CCR1 = 0;
 				TIM1->CCR2 = 0;
 				TIM1->CCR3 = duty_cycle;
 			} else {
+				TIM1->CCR1 = 0;
 				TIM1->CCR2 = duty_cycle;
+				TIM1->CCR3 = 0;
+				phase_a_low = false;
+				phase_b_low = false;
 				phase_c_low = true;
 			}
 			break;
 		case 5:
-			TIM1->CCR3 = 0;
-			phase_c_low = false;
 			if (not reverse) {
-				TIM1->CCR2 = 0;
-				phase_a_low = false;
-				phase_b_low = true;
 				TIM1->CCR1 = duty_cycle;
 				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
 				phase_a_low = false;
 				phase_b_low = true;
+				phase_c_low = false;
 			} else {
 				phase_a_low = true;
+				phase_b_low = false;
+				phase_c_low = false;
+				TIM1->CCR1 = 0;
 				TIM1->CCR2 = duty_cycle;
-
+				TIM1->CCR3 = 0;
 			}
 			break;
 		case 4:
-			TIM1->CCR3 = 0;
-			phase_b_low = false;
 			if (not reverse) {
-				TIM1->CCR2 = 0;
 				phase_a_low = false;
+				phase_b_low = false;
 				phase_c_low = true;
 				TIM1->CCR1 = duty_cycle;
+				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
 			} else {
 				phase_a_low = true;
+				phase_b_low = false;
+				phase_c_low = false;
+				TIM1->CCR1 = 0;
+				TIM1->CCR2 = 0;
 				TIM1->CCR3 = duty_cycle;
 			}
 			break;
 		} // end of phase switch
 
-		if(reverse)
-			step--;
-		else
-			step++;
+//		if(reverse)
+//			step--;
+//		else
+//			step++;
 
-		if(enable) {
-			timer.stop();
-			timer.start(1000);
+
+		if (pin == 1 or pin == 2) {
+			if (pin == 1 or pin == 2) {
+				if (holla_1 != last_1) {
+					if (holla_1 == holla_2)
+						step++;
+					else
+						step--;
+				}
+
+				if (holla_2 != last_2) {
+					if (holla_1 != holla_2)
+						step++;
+					else
+						step--;
+				}
+
+				last_1 = holla_1;
+				last_2 = holla_2;
+			}
+		}
+
+		if(not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)){
+			time_1 = 0;
+		}
+
+		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)){
+			time_2 = 0;
+		}
+
+		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)){
+			time_3 = 0;
 		}
 	}
 
@@ -186,10 +249,17 @@ public:
 	{
 		hallpos = ((HAL_GPIO_ReadPin(GPIOC, holla_1_Pin) << 2) | (HAL_GPIO_ReadPin(GPIOB, holla_2_Pin) << 1) | HAL_GPIO_ReadPin(GPIOB, holla_3_Pin));
 		en_holla = true;
-		stop();
+//		stop();
+		subscribed = false;
 	}
 
-	Timer timer;
+	uint16_t time_1{0};
+	uint16_t time_2{0};
+	uint16_t time_3{0};
+	uint16_t time{0};
+	uint16_t speed{0};
+	int16_t prev_step{0};
+	int16_t prev_step_drive{0};
 
 	void forward() {
 //		en_holla = true;
@@ -237,12 +307,43 @@ public:
 		phase_c_low = true;
 	}
 
+	void current_fix(){
+		if(TIM1->CCR1 > TIM1->CCR2 and TIM1->CCR1 > TIM1->CCR2) {
+			TIM1->CCR1 = 900;
+			TIM1->CCR2 = 0;
+			TIM1->CCR3 = 0;
+		} else if(TIM1->CCR2 > TIM1->CCR1 and TIM1->CCR2 > TIM1->CCR3) {
+			TIM1->CCR1 = 0;
+			TIM1->CCR2 = 900;
+			TIM1->CCR3 = 0;
+		} else if(TIM1->CCR3 > TIM1->CCR1 and TIM1->CCR3 > TIM1->CCR2) {
+			TIM1->CCR1 = 0;
+			TIM1->CCR2 = 0;
+			TIM1->CCR3 = 900;
+		}
+
+	}
+
+	void current_stop(){
+		TIM1->CCR1 = 0;
+				TIM1->CCR2 = 0;
+				TIM1->CCR3 = 0;
+				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+				phase_a_low = false;
+				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+				phase_b_low = false;
+				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+				phase_c_low = false;
+		}
+
 	bool check_holla(){
 		return bool(error_holla);
 	}
 
 
 	void pusk() {
+
+		subscribe();
 
 		phase_a_low = false;
 		phase_b_low = false;
@@ -262,15 +363,20 @@ public:
 
 		adc.measure_value();
 
-		timer.start(1000);
+//		timer.start(1000);
 
 		enable = true;
+		prev_step = step;
+		speed = 10;
+		prev_step_drive = step;
 
 //		service.outData.error.current = false;
 
 	}
 
 	void stop() {
+
+		unsubscribe();
 
 		TIM1->CCR1 = 0;
 		TIM1->CCR2 = 0;
@@ -286,16 +392,58 @@ public:
 
 //		en_holla = false;
 
-		timer.stop();
-
 		adc.measure_offset();
 
 		enable = false;
+
+		time_1 = 0;
+		time_2 = 0;
+		time_3 = 0;
+
+		speed= 0;
+		prev_step_drive = step;
 
 	}
 
 	void alarm() {
 
+	}
+
+	bool is_work(){
+		return enable;
+	}
+
+	bool is_start(){
+		return abs(abs(step) - abs(prev_step_drive)) >= 30;
+	}
+
+	void equal_step(){
+		prev_step_drive = step;
+	}
+
+	void notify() {
+		if (enable and HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
+			time_1++;
+		} else if (not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
+			time_1 = 0;
+		}
+
+		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
+			time_2++;
+		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
+			time_2 = 0;
+		}
+
+		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
+			time_3++;
+		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
+			time_3 = 0;
+		}
+		if(time++ >= 100) {
+			time = 0;
+			speed = abs(step - prev_step);
+			prev_step = step;
+		}
 	}
 
 };
@@ -319,7 +467,14 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t Holla){
+
+
 	if(Holla == holla_1_Pin or Holla == holla_2_Pin or Holla == holla_3_Pin) {
+			pin = 0;
+
+			if(Holla == holla_1_Pin) pin = 1;
+			if(Holla == holla_2_Pin) pin = 2;
+			if(Holla == holla_3_Pin) pin = 3;
 		ext_holla_1_callback.interrupt();
 	}
 }
