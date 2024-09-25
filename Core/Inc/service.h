@@ -133,13 +133,13 @@ public:
 
 		outData.current        = k_adc * (adc.current_value() * 30 / 20) * 1000;
 		outData.voltage_board  = k_adc * adc[VB] * 100;
-//		outData.voltage_logic  = k_adc * adc[VL] * 100;
-//		outData.voltage_drive  = k_adc * adc[VD] * 100;
+		outData.voltage_logic  = k_adc * adc[VL] * 100;
+		outData.voltage_drive  = k_adc * adc[VD] * 100;
 
 		outData.error.current           = (outData.current >= 850);
 		outData.error.voltage_board_low = (outData.voltage_board <= 180);
-//		outData.error.voltage_logic_low = (outData.voltage_logic <= 180);
-//		outData.error.voltage_drive_low = (outData.voltage_drive <= 180);
+		outData.error.voltage_logic_low = (outData.voltage_logic <= 180);
+		outData.error.voltage_drive_low = (outData.voltage_drive <= 180);
 
 		kolhoz ^= timer.event();
 

@@ -91,8 +91,8 @@ public:
 	  arInID[0] = arInID[1] = arInID[2] = arInID[3] = arInID[4] = arInID[5] = arInID[6] = arInID[7]= 0;
 	  arOutID[0] = arOutID[1] = arOutID[2] = arOutID[3] = arOutID[4] = arOutID[5] = arOutID[6] = arOutID[7] = 0;
 	  subscribed = false;
-	  if (time_refresh > 0)
-		  subscribe();
+//	  if (time_refresh > 0)
+//		  subscribe();
   }
 
   static const uint8_t InIDQty  = sizeof(InID_t);
@@ -121,9 +121,6 @@ public:
 
 
   void transmit(){
-	  	outID.res1 = 0xFFFF;
-	  	outID.res2 = 0xFFFF;
-	  	outID.res3 = 0xFFFF;
 	  	rts = true;
 		TxHeader.DLC = 8;
 		TxHeader.ExtId = 0;

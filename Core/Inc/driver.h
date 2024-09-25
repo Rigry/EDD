@@ -57,13 +57,13 @@ public:
 		service.outData.error.open_in  = open_in;
 		service.outData.error.close_in = close_in;
 
-		service.outData.voltage_logic = convertor.speed;
-		service.outData.voltage_drive = power;
+//		service.outData.voltage_logic = convertor.speed;
+//		service.outData.voltage_drive = power;
 
 		if(service.outData.error.current
 		or service.outData.error.voltage_board_low
-//		or service.outData.error.voltage_drive_low
-//		or service.outData.error.voltage_logic_low
+		or service.outData.error.voltage_drive_low
+		or service.outData.error.voltage_logic_low
 		/*or not convertor.check_holla()*/) {
 			enable = false;
 			state = wait;

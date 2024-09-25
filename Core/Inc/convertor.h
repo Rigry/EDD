@@ -221,17 +221,17 @@ class Convertor : TickSubscriber {
 			}
 		}
 
-		if(not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)){
-			time_1 = 0;
-		}
-
-		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)){
-			time_2 = 0;
-		}
-
-		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)){
-			time_3 = 0;
-		}
+//		if(not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)){
+//			time_1 = 0;
+//		}
+//
+//		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)){
+//			time_2 = 0;
+//		}
+//
+//		if(not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)){
+//			time_3 = 0;
+//		}
 	}
 
 public:
@@ -253,9 +253,9 @@ public:
 		subscribed = false;
 	}
 
-	uint16_t time_1{0};
-	uint16_t time_2{0};
-	uint16_t time_3{0};
+//	uint16_t time_1{0};
+//	uint16_t time_2{0};
+//	uint16_t time_3{0};
 	uint16_t time{0};
 	uint16_t speed{0};
 	int16_t prev_step{0};
@@ -326,15 +326,15 @@ public:
 
 	void current_stop(){
 		TIM1->CCR1 = 0;
-				TIM1->CCR2 = 0;
-				TIM1->CCR3 = 0;
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
-				phase_a_low = false;
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
-				phase_b_low = false;
-				HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
-				phase_c_low = false;
-		}
+		TIM1->CCR2 = 0;
+		TIM1->CCR3 = 0;
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_1);
+		phase_a_low = false;
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_2);
+		phase_b_low = false;
+		HAL_TIM_PWM_Stop(&htim1, TIM_CHANNEL_3);
+		phase_c_low = false;
+	}
 
 	bool check_holla(){
 		return bool(error_holla);
@@ -396,9 +396,9 @@ public:
 
 		enable = false;
 
-		time_1 = 0;
-		time_2 = 0;
-		time_3 = 0;
+//		time_1 = 0;
+//		time_2 = 0;
+//		time_3 = 0;
 
 		speed= 0;
 		prev_step_drive = step;
@@ -422,23 +422,23 @@ public:
 	}
 
 	void notify() {
-		if (enable and HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
-			time_1++;
-		} else if (not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
-			time_1 = 0;
-		}
-
-		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
-			time_2++;
-		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
-			time_2 = 0;
-		}
-
-		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
-			time_3++;
-		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
-			time_3 = 0;
-		}
+//		if (enable and HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
+//			time_1++;
+//		} else if (not enable or not HAL_GPIO_ReadPin(GPIOC, holla_1_Pin)) {
+//			time_1 = 0;
+//		}
+//
+//		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
+//			time_2++;
+//		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_2_Pin)) {
+//			time_2 = 0;
+//		}
+//
+//		if (enable and HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
+//			time_3++;
+//		} else if (not enable or not HAL_GPIO_ReadPin(GPIOB, holla_3_Pin)) {
+//			time_3 = 0;
+//		}
 		if(time++ >= 100) {
 			time = 0;
 			speed = abs(step - prev_step);

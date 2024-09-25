@@ -65,6 +65,8 @@ extern DMA_HandleTypeDef hdma_usart3_rx;
 extern UART_HandleTypeDef huart3;
 /* USER CODE BEGIN EV */
 
+extern TIM_HandleTypeDef htim1;
+
 /* USER CODE END EV */
 
 /******************************************************************************/
