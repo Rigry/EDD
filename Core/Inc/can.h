@@ -3,26 +3,34 @@
 #include "pin.h"
 #include "interrupt.h"
 
-
+// по инициализации проема 8 байт 0xFF на первом проеме на двух независимых дверях. Водительская со жгутом выходов на входа.
 
 struct Control {
-	bool open     : 1;
-	bool close    : 1;
-	uint16_t : 14;
+	bool res1            : 1; // 0
+	bool close_passenger : 1; // 1
+	bool open_passenger  : 1; // 2
+    uint16_t             : 5;
+	bool close_driver    : 1; // 0
+	bool open_driver     : 1; // 1
+	uint16_t             : 6;
 };
 
 struct State {
-	bool open     : 1;
-	bool close    : 1;
-	bool clamp    : 1;
-	uint16_t : 13;
+	bool res1            : 1; // 0
+	bool res2            : 1; // 1
+	bool res3            : 1; // 2
+	bool open_passenger  : 1; // 3 1 - open door, 0 - close
+	bool open_driver     : 1; // 4 1 - open door, 0 - close
+	bool clamp           : 1; // 5
+	uint16_t             : 9;
 };
 
 struct In_id{
 	Control control;
 	uint16_t res1;
 	uint16_t res2;
-	uint16_t res3;
+	uint8_t res3;
+	uint8_t initial; // 0xFF
 };
 
 struct Out_id{
@@ -51,7 +59,7 @@ class CAN : TickSubscriber
   uint8_t Data[31];
   uint8_t DataRx[31];
 
-  uint32_t ID{0x001};
+  uint32_t ID{0x0DD};
 
   uint16_t time{0};
   uint16_t time_refresh{0};
@@ -119,6 +127,9 @@ public:
       void interrupt() {parent.receive();}
   }can_rx_{ *this };
 
+  void change_ID(uint32_t v){
+	  ID = v;
+  }
 
   void transmit(){
 	  	rts = true;
@@ -139,18 +150,15 @@ public:
 		HAL_CAN_GetRxMessage(&hcan, CAN_RX_FIFO0, &RxHeader, RxData);
 
 		switch(RxHeader.StdId) {
-			case 0x17:
-//				inID.control.ignition = RxData[0] & (1 << 1);
+			case 0xDC:
+				arInID[0] = RxData[0];
+				arInID[1] = RxData[1];
+				inID.initial = RxData[7];
 				start_transmit();
 				break;
-			case 0x18:
-//				inID.control.HV_off   = RxData[0] & (1 << 6);
-				start_transmit();
-			break;
-//			case 0x10:
-//				inID.control.test = RxData[0] & (1 << 0);
-//				start_transmit();
-//			break;
+			case 0xAA:
+				outID.state.open_driver = RxData[0] & (1 << 4);
+				break;
 		}
 	}
 

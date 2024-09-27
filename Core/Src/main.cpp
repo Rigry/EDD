@@ -136,7 +136,7 @@ int main(void)
   decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 200};
 
   decltype(auto) uart = UART_<>{led_can};
-  decltype(auto) can = CAN<In_id, Out_id>{led_can, interrupt_can_rx, 250};
+  decltype(auto) can = CAN<In_id, Out_id>{led_can, interrupt_can_rx, 100};
 
   decltype(auto) service = Service<In_data, Out_data>{adc, uart, interrupt_dma, interrupt_uart};
 

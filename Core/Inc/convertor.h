@@ -414,7 +414,7 @@ public:
 	}
 
 	bool is_start(){
-		return abs(abs(step) - abs(prev_step_drive)) >= 30;
+		return abs(abs(step) - abs(prev_step_drive)) >= 50;
 	}
 
 	void equal_step(){

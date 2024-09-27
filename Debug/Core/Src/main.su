@@ -76,10 +76,11 @@ convertor.h:424:7:virtual void Convertor::notify()	16	static
 convertor.h:455:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
 convertor.h:462:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
 convertor.h:469:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
-can.h:183:6:void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*)	16	static
-driver.h:42:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
-driver.h:52:7:void Driver::operator()()	24	static
-main.cpp:86:5:int main()	752	static
+can.h:191:6:void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*)	16	static
+driver.h:47:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
+driver.h:59:7:bool Driver::is_initial()	16	static
+driver.h:83:7:void Driver::operator()()	16	static
+main.cpp:86:5:int main()	760	static
 main.cpp:170:6:void SystemClock_Config()	96	static
 main.cpp:216:13:void MX_ADC1_Init()	24	static
 main.cpp:277:13:void MX_ADC2_Init()	40	static
@@ -97,9 +98,10 @@ static_vector.h:46:7:T Static_vector<T, size_>::operator[](size_t) const [with T
 static_vector.h:18:5:Static_vector<T, size_>::Static_vector() [with T = Subscriber*; unsigned char size_ = 12]	16	static
 systick.h:13:30:void SystemTick::initInterrupt() [with short unsigned int us = 1000]	16	static
 timers.h:107:13:void every_qty_cnt_call(size_t&, size_t, Function) [with Function = TickUpdater::interrupt()::<lambda()>]	24	static
+can.h:130:8:void CAN<InID_t, OutID_t>::change_ID(uint32_t) [with InID_t = In_id; OutID_t = Out_id]	16	static
 service.h:132:7:void Service<In_data_t, Out_data_t>::operator()() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 uart.h:15:2:UART_<buffer_size>::UART_(Pin&) [with unsigned int buffer_size = 26]	16	static
-can.h:86:3:CAN<InID_t, OutID_t>::CAN(Pin&, Interrupt&, uint16_t) [with InID_t = In_id; OutID_t = Out_id]	24	static
+can.h:94:3:CAN<InID_t, OutID_t>::CAN(Pin&, Interrupt&, uint16_t) [with InID_t = In_id; OutID_t = Out_id]	24	static
 service.h:117:2:Service<In_data_t, Out_data_t>::Service(ADC_&, UART_<>&, Interrupt&, Interrupt&) [with In_data_t = In_data; Out_data_t = Out_data]	24	static
 net_buffer.h:29:13:uint8_t Net_buffer<size_>::operator[](int) [with unsigned char size_ = 26]	16	static
 net_buffer.h:11:10:void Net_buffer<size_>::clear() [with unsigned char size_ = 26]	16	static
@@ -109,20 +111,20 @@ net_buffer.h:14:13:uint8_t Net_buffer<size_>::size() [with unsigned char size_ =
 uart.h:19:7:void UART_<buffer_size>::transmit() [with unsigned int buffer_size = 26]	24	static
 uart.h:25:7:void UART_<buffer_size>::receive() [with unsigned int buffer_size = 26]	16	static
 net_buffer.h:7:5:Net_buffer<size_>::Net_buffer() [with unsigned char size_ = 26]	16	static
-can.h:116:7:CAN<InID_t, OutID_t>::can_rx_interrupt::can_rx_interrupt(CAN<InID_t, OutID_t>::Parent&) [with InID_t = In_id; OutID_t = Out_id]	16	static
+can.h:124:7:CAN<InID_t, OutID_t>::can_rx_interrupt::can_rx_interrupt(CAN<InID_t, OutID_t>::Parent&) [with InID_t = In_id; OutID_t = Out_id]	16	static
 service.h:75:3:Service<In_data_t, Out_data_t>::uart_interrupt::uart_interrupt(Service<In_data_t, Out_data_t>::Parent&) [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:86:3:Service<In_data_t, Out_data_t>::dma_interrupt::dma_interrupt(Service<In_data_t, Out_data_t>::Parent&) [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 net_buffer.h:39:10:void Net_buffer<size_>::to_bytes(uint16_t, uint8_t&, uint8_t&) [with unsigned char size_ = 26]	32	static
 net_buffer.h:71:20:Net_buffer<size_>& Net_buffer<size_>::operator<<(uint8_t) [with unsigned char size_ = 26]	16	static
 net_buffer.h:16:14:uint8_t* Net_buffer<size_>::ptr() [with unsigned char size_ = 26]	16	static
 main.cpp:647:1:void __static_initialization_and_destruction_0(int, int)	16	static
-can.h:169:8:void CAN<InID_t, OutID_t>::notify() [with InID_t = In_id; OutID_t = Out_id]	16	static
-can.h:119:12:void CAN<InID_t, OutID_t>::can_rx_interrupt::interrupt() [with InID_t = In_id; OutID_t = Out_id]	16	static
 service.h:90:8:void Service<In_data_t, Out_data_t>::dma_interrupt::interrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:79:8:void Service<In_data_t, Out_data_t>::uart_interrupt::interrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
-can.h:123:8:void CAN<InID_t, OutID_t>::transmit() [with InID_t = In_id; OutID_t = Out_id]	24	static
-can.h:138:8:void CAN<InID_t, OutID_t>::receive() [with InID_t = In_id; OutID_t = Out_id]	16	static
+can.h:177:8:void CAN<InID_t, OutID_t>::notify() [with InID_t = In_id; OutID_t = Out_id]	16	static
+can.h:127:12:void CAN<InID_t, OutID_t>::can_rx_interrupt::interrupt() [with InID_t = In_id; OutID_t = Out_id]	16	static
 service.h:67:7:void Service<In_data_t, Out_data_t>::dmaInterrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
 service.h:62:7:void Service<In_data_t, Out_data_t>::uartInterrupt() [with In_data_t = In_data; Out_data_t = Out_data]	16	static
-can.h:159:8:void CAN<InID_t, OutID_t>::start_transmit() [with InID_t = In_id; OutID_t = Out_id]	16	static
+can.h:134:8:void CAN<InID_t, OutID_t>::transmit() [with InID_t = In_id; OutID_t = Out_id]	24	static
+can.h:149:8:void CAN<InID_t, OutID_t>::receive() [with InID_t = In_id; OutID_t = Out_id]	16	static
+can.h:167:8:void CAN<InID_t, OutID_t>::start_transmit() [with InID_t = In_id; OutID_t = Out_id]	16	static
 main.cpp:647:1:cpp)	8	static
