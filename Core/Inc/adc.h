@@ -4,7 +4,7 @@
 #include "interrupt.h"
 #include <cmath>
 
-const uint16_t qty_point{18};
+const uint16_t qty_point{36};
 
 enum {CURRENT = 0};
 enum {VB = 0, VL = 1, VD = 2};

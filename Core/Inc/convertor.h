@@ -8,7 +8,7 @@
 class Convertor {
 
 	ADC_& adc;
-	Service& service;
+	Service<In_data, Out_data>& service;
 	Interrupt& period_callback;
 	Interrupt& adc_comparator_callback;
 	Interrupt& ext_holla_1_callback;
@@ -23,6 +23,10 @@ class Convertor {
 	uint8_t hallpos{1};
 	int32_t step{0};
 	int16_t max_steps{0};
+
+	uint8_t k {0};
+	uint8_t m {12};
+	uint8_t n {24};
 
 	uint16_t duty_cycle{0};
 	uint16_t km{0};
@@ -54,35 +58,37 @@ class Convertor {
 		}
 	} tim3_interrupt { *this };
 
-	struct adc_comparator_interrupt: Interrupting {
-		Parent &parent;
-		adc_comparator_interrupt(Parent &parent) :
-				parent(parent) {
-			parent.adc_comparator_callback.subscribe(this);
-		}
-		void interrupt() override {
-			parent.comparator_interrupt();
-		}
-	} adc_comparator_ { *this };
-
-	struct Holla_1_interrupt: Interrupting {
-		Parent &parent;
-		Holla_1_interrupt(Parent &parent) :
-				parent(parent) {
-			parent.ext_holla_1_callback.subscribe(this);
-		}
-		void interrupt() override {
-			parent.holla_1_callback();
-		}
-	} holla_1_interrupt_ { *this };
+//	struct adc_comparator_interrupt: Interrupting {
+//		Parent &parent;
+//		adc_comparator_interrupt(Parent &parent) :
+//				parent(parent) {
+//			parent.adc_comparator_callback.subscribe(this);
+//		}
+////		void interrupt() override {
+////			parent.comparator_interrupt();
+////		}
+//	} adc_comparator_ { *this };
+//
+//	struct Holla_1_interrupt: Interrupting {
+//		Parent &parent;
+//		Holla_1_interrupt(Parent &parent) :
+//				parent(parent) {
+//			parent.ext_holla_1_callback.subscribe(this);
+//		}
+//		void interrupt() override {
+//			parent.holla_1_callback();
+//		}
+//	} holla_1_interrupt_ { *this };
 
 	void period_interrupt(){
 
+		if(km >= 990) km = 990;
+
 		km += (new_km - km) * 10 / 40;
 
-		TIM1->CCR1 = Km * sin_table[m++] / 1000;
-		TIM1->CCR2 = Km * sin_table[k++] / 1000;
-		TIM1->CCR3 = Km * sin_table[n++] / 1000;
+		TIM1->CCR1 = km * sin_table[m++] / 1000;
+		TIM1->CCR2 = km * sin_table[k++] / 1000;
+		TIM1->CCR3 = km * sin_table[n++] / 1000;
 
 		if (k >= qty_point) {k = 0;}
 		if (m >= qty_point) {m = 0;}
@@ -195,7 +201,7 @@ class Convertor {
 
 public:
 
-	Convertor(ADC_& adc, Service& service, Interrupt& period_callback, Interrupt& adc_comparator_callback
+	Convertor(ADC_& adc, Service<In_data, Out_data>& service, Interrupt& period_callback, Interrupt& adc_comparator_callback
 			,  Interrupt& ext_holla_1_callback
 			, Pin& led_red
 			, Pin& en_holla, Pin& error_holla
@@ -229,7 +235,7 @@ public:
 	void back() {
 //		en_holla = true;
 		pusk();
-		holla_1_callback();
+//		holla_1_callback();
 		reverse = true;
 	}
 
@@ -255,9 +261,9 @@ public:
 	}
 
 	void fix(){
-		phase_a_low = true;
-		phase_b_low = true;
-		phase_c_low = true;
+//		phase_a_low = true;
+//		phase_b_low = true;
+//		phase_c_low = true;
 	}
 
 	bool check_holla(){
@@ -273,7 +279,7 @@ public:
 
 		TIM3->ARR = 99;
 
-		Km = 5;
+		km = 5;
 
 		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
 		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);

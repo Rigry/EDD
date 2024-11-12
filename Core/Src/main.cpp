@@ -132,7 +132,7 @@ int main(void)
 //  decltype(auto) phase_b_low= Pin{GPIOB, CH2_LOW_Pin     };
 //  decltype(auto) phase_c_low= Pin{GPIOB, CH3_LOW_Pin     };
 
-  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 500};
+  decltype(auto) adc = ADC_ {adc_callback, adc_injected_callback, 3, 100};
 
   decltype(auto) uart = UART_<>{led_can};
 
@@ -446,7 +446,7 @@ static void MX_TIM3_Init(void)
 
   /* USER CODE END TIM3_Init 1 */
   htim3.Instance = TIM3;
-  htim3.Init.Prescaler = 39;
+  htim3.Init.Prescaler = 19;
   htim3.Init.CounterMode = TIM_COUNTERMODE_UP;
   htim3.Init.Period = 49999;
   htim3.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
