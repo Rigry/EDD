@@ -5,7 +5,7 @@
 #include "convertor.h"
 #include "can.h"
 
-class Driver {
+class Driver : TickSubscriber {
 
 	enum State    {wait, opening, closing, clamp_opening, clamp_closing, alarm} state{wait};
 	enum Door_of  {driver, single_pass, double_pass, not_door} door{not_door};
@@ -34,13 +34,17 @@ class Driver {
 	bool fix{false};
 
 	bool first_time{true};
+	bool need_open{false};
 
 	uint16_t time_clamp{150}; // was 120
+	uint8_t qty_step{195};
 	uint8_t open_power{60};
 
 	Timer init;
 	Timer delay;
 	uint16_t power{0};
+	uint16_t max_power{0};
+	uint16_t time{0};
 
 public:
 
@@ -51,9 +55,11 @@ public:
 	      , led_red{led_red}, led_green{led_green}, open_in{open_in}, close_in{close_in}
 	      , open_out{open_out}, close_out{close_out}, open_fb{open_fb}, close_fb{close_fb}, end{end}
 	{
-		init.start(2'000);
+		init.start(1'000);
 		open_out = true;
 		close_out = true;
+		subscribed = false;
+		subscribe();
 	}
 
 	bool is_initial() {
@@ -61,11 +67,14 @@ public:
 		if (init.isCount()) {
 			if(open_in and close_in and can.inID.initial == 0xFF) {
 				door = driver;
+				qty_step = 195;
 				can.change_ID(0xAA);
 			} else if (not open_in and not close_in and can.inID.initial == 0xFF) {
 				door = single_pass;
+				qty_step = 205;
 			} else if (not open_in and not close_in and can.inID.initial != 0xFF) {
 				door = double_pass;
+				qty_step = 195;
 			}
 		}
 
@@ -78,6 +87,18 @@ public:
 
 		return init_door;
 
+	}
+
+	void notify() {
+		if(state == opening or state == closing) {
+			if(time++ >= 4) {
+				time = 0;
+				power++;
+				power++;
+				if(power >= max_power) power = max_power;
+				convertor.power(power);
+			}
+		}
 	}
 
 	void operator() () {
@@ -93,17 +114,17 @@ public:
 //		service.outData.voltage_logic = convertor.speed;
 //		service.outData.voltage_drive = power;
 
-		if(service.outData.error.current
-		or service.outData.error.voltage_board_low
-		or service.outData.error.voltage_drive_low
-		or service.outData.error.voltage_logic_low
-		/*or not convertor.check_holla()*/) {
-			enable = false;
-			state = wait;
-			convertor.stop();
-		} else {
+//		if(service.outData.error.current
+//		or service.outData.error.voltage_board_low
+//		or service.outData.error.voltage_drive_low
+//		or service.outData.error.voltage_logic_low
+//		/*or not convertor.check_holla()*/) {
+//			enable = false;
+//			state = wait;
+//			convertor.stop();
+//		} else {
 			enable = true;
-		}
+//		}
 
 		led_red = not enable;
 //		led_green = false;
@@ -124,8 +145,9 @@ public:
 //		}
 		if (is_initial()) {
 
-		if( service.outData.current > 500 and convertor.is_work()
-		or ( /*abs(convertor.steps()) > 30 and abs(convertor.steps()) < 180*/convertor.is_start()  and convertor.speed < 3 and not clamp_open and convertor.is_work())
+		if( service.outData.current > 500 and convertor.is_work() and not need_open
+		or ( /*abs(convertor.steps()) > 30 and abs(convertor.steps()) < 180*/
+				convertor.is_start()  and convertor.speed < 3 and not clamp_open and convertor.is_work()) and not need_open
 		 ) {
 			clamp = true;
 //			convertor.equal_step();
@@ -178,17 +200,31 @@ public:
 			case wait:
 				if(end) {convertor.reset_steps(); convertor.fix();}
 				if((abs(convertor.steps()) >= (185) or fix)) {
-					convertor.current_fix();
+					switch (door) {
+						case driver:
+							convertor.current_fix();
+						break;
+						case single_pass:
+							convertor.current_fix();
+						break;
+						case double_pass:
+							convertor.power(35);
+						break;
+					}
 				} else {
 					convertor.current_stop();
 				}
 				convertor.equal_step();
 				if(enable) {
-					if(( (open_in or (can.inID.control.open_passenger and (door == single_pass or door == double_pass))
-					              or (can.inID.control.open_driver and door == driver)) and not begin and not clamp and not clamp_open and not first_time)/* or clamp_open or not clamp*/) {
+					if(( (open_in or (can.inID.control.open_passenger and (door == single_pass or door == double_pass) and not can.inID.control.close_passenger)
+					              or (can.inID.control.open_driver and door == driver) and not can.inID.control.close_driver)
+							and not begin and not clamp and not clamp_open and not first_time)/* or clamp_open or not clamp*/) {
 						clamp_close = false;
 						convertor.stop();
-						convertor.power(99);
+						convertor.current_stop();
+						power = 0;
+						max_power = 90;
+						convertor.power(power);
 						switch (door) {
 						case driver:
 							if(open_in or can.inID.control.open_driver)
@@ -206,12 +242,14 @@ public:
 							break;
 						}
 						state = opening; fix = false;/*going.start(5);*/ // back для водителя forward для пассажира // 60 passenger 90 driver
-					} else if( ( close_in or (can.inID.control.close_passenger  and (door == single_pass or door == double_pass))
-							              or (can.inID.control.close_driver and door == driver) ) and not end and not clamp and not clamp_close ) {
+					} else if( ( close_in or (can.inID.control.close_passenger  and (door == single_pass or door == double_pass) and not can.inID.control.open_passenger)
+							              or (can.inID.control.close_driver and door == driver) and not can.inID.control.open_driver) and not end and not clamp and not clamp_close ) {
 						fix = false;
 						clamp_open = false;
+						need_open = false;
 						convertor.stop();
-						power = 70; //was 50
+						power = 0;
+						max_power = 70; //was 50
 						convertor.power(power);
 						switch (door) {
 						case driver:
@@ -233,33 +271,19 @@ public:
 //						going.start(5);
 					} else if ( (not open_in and not close_in and not can.inID.control.close_passenger and not can.inID.control.open_passenger) /*and (not can.inID.control.open and not can.inID.control.close)*/ ){
 						clamp = false;  clamp_open = false; clamp_close = false;
-					} else if (clamp_open and clamp_close){
+					} else if (clamp_open and clamp_close and abs(convertor.steps()) <= (185) ){
 						 convertor.stop();
+						 power = 0;
 					}
-					if (end) {clamp_open = false; begin = false; }
+					if (end) {clamp_open = false; begin = false; power = 0;}
 				}
 
 			break;
 			case opening:
 
-
-
-//				if (going.done()) {
-//					going.stop();
-//					going.start(5);
-////					if(power++ >= 60) power = 60; // 95 passenger 70 driver
-//					if (convertor.speed >= 15) {
-//						power -= (convertor.speed - 15) * 10 / 30;
-//					} else {
-//						power += (15 - convertor.speed) * 10 / 30;
-//					}
-//					power = power >= 95 ? 95 : power;
-//					convertor.power(power);
-//				}
-//				convertor.current_fix();
-
 				if(abs(convertor.steps()) >= (120)) { // for passenger
-					convertor.power(60); // 35 passenger 65 driver // was60
+					max_power = 60;
+//					convertor.power(60); // 35 passenger 65 driver // was60
 				}
 
 //				if (abs(convertor.steps()) >= (160)) { // for passenger
@@ -267,7 +291,7 @@ public:
 //				}
 //
 				if(door == driver) {
-					if ((not open_in and not can.inID.control.open_driver) or abs(convertor.steps()) >= (185)) {
+					if ((not open_in and not can.inID.control.open_driver) or abs(convertor.steps()) >= (qty_step)) {
 						state = wait;
 //					clamp = false; clamp_open = false;
 //					convertor.stop();
@@ -279,11 +303,12 @@ public:
 
 					}
 				} else if (door == single_pass or door == double_pass) {
-					if ((not open_in and not can.inID.control.open_passenger) or abs(convertor.steps()) >= (185)) {
+					if ((not open_in and not can.inID.control.open_passenger) or abs(convertor.steps()) >= (qty_step)) {
 						state = wait;
 //					clamp = false; clamp_open = false;
 //					convertor.stop();
-						convertor.current_fix();
+//					power = 0;
+//						convertor.current_fix();
 //					convertor.power(20);
 						if (abs(convertor.steps()) >= (180)) {
 							begin = true;
@@ -295,34 +320,45 @@ public:
 			break;
 			case closing:
 
-//				if (going.done()) {
-//					going.stop();
-//					going.start(5);
-////					if(power++ >= 60) power = 60; // 95 passenger 70 driver
-//					if(convertor.speed >= 10) {
-//						power -= (convertor.speed - 10)*10/30;
-//					} else {
-//						power += (10 - convertor.speed) * 10 / 30;
-//					}
-//					power = power >= 95 ? 95 : power;
-//					convertor.power(power);
-//				}
-
 				if (abs(convertor.steps()) <= (150)) {
-					convertor.power(70); // 95 passenger // 70 driver // 60
+					max_power = 70;
+//					convertor.power(70); // 95 passenger // 70 driver // 60
 				}
 
 				if(door == driver) {
+					if(can.inID.control.open_driver) {
+						convertor.stop();
+						max_power = 90;
+						power = 0;
+						convertor.power(power);
+						convertor.back();
+						state = opening;
+						begin = false;
+						need_open = true;
+					} else
 					if( (not close_in and not can.inID.control.close_driver) or end) {
 						state = wait;
 						convertor.stop();
+						max_power = 90;
+						power = 0;
+						convertor.power(power);
 						if(end) convertor.reset_steps();
 						begin = false;
 					}
 				} else if (door == single_pass or door == double_pass) {
-					if( (not close_in and not can.inID.control.close_passenger) or end) {
+					if(can.inID.control.open_passenger) {
+						convertor.stop();
+						max_power = 90;
+						power = 0;
+						convertor.power(power);
+						convertor.forward();
+						state = opening;
+						begin = false;
+						need_open = true;
+					} else if( (not close_in and not can.inID.control.close_passenger) or end) {
 						state = wait;
 						convertor.stop();
+						power = 0;
 						if(end) convertor.reset_steps();
 						begin = false;
 					}
@@ -366,6 +402,7 @@ public:
 				if(end) {
 					state = wait;
 					convertor.stop();
+					power = 0;
 					convertor.reset_steps();
 					begin = false;
 					clamp_close = true;
@@ -394,6 +431,7 @@ public:
 				}
 
 				if (clamp_open and delay.done()) {
+					power = 0;
 					convertor.stop();
 					delay.stop();
 //					convertor.power(50);

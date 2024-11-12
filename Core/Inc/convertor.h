@@ -308,18 +308,18 @@ public:
 	}
 
 	void current_fix(){
-		if(TIM1->CCR1 > TIM1->CCR2 and TIM1->CCR1 > TIM1->CCR2) {
-			TIM1->CCR1 = 900;
+		if(TIM1->CCR1 > TIM1->CCR2 and TIM1->CCR1 > TIM1->CCR3) {
+			TIM1->CCR1 = 800;
 			TIM1->CCR2 = 0;
 			TIM1->CCR3 = 0;
 		} else if(TIM1->CCR2 > TIM1->CCR1 and TIM1->CCR2 > TIM1->CCR3) {
 			TIM1->CCR1 = 0;
-			TIM1->CCR2 = 900;
+			TIM1->CCR2 = 800;
 			TIM1->CCR3 = 0;
 		} else if(TIM1->CCR3 > TIM1->CCR1 and TIM1->CCR3 > TIM1->CCR2) {
 			TIM1->CCR1 = 0;
 			TIM1->CCR2 = 0;
-			TIM1->CCR3 = 900;
+			TIM1->CCR3 = 800;
 		}
 
 	}
@@ -376,7 +376,8 @@ public:
 
 	void stop() {
 
-		unsubscribe();
+		if(subscribed)
+			unsubscribe();
 
 		TIM1->CCR1 = 0;
 		TIM1->CCR2 = 0;
@@ -400,7 +401,7 @@ public:
 //		time_2 = 0;
 //		time_3 = 0;
 
-		speed= 0;
+		speed = 0;
 		prev_step_drive = step;
 
 	}

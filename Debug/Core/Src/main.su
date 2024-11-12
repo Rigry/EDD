@@ -69,18 +69,19 @@ convertor.h:310:7:void Convertor::current_fix()	16	static
 convertor.h:327:7:void Convertor::current_stop()	16	static
 convertor.h:344:7:void Convertor::pusk()	16	static
 convertor.h:377:7:void Convertor::stop()	16	static
-convertor.h:412:7:bool Convertor::is_work()	16	static
-convertor.h:416:7:bool Convertor::is_start()	16	static
-convertor.h:420:7:void Convertor::equal_step()	16	static
-convertor.h:424:7:virtual void Convertor::notify()	16	static
-convertor.h:455:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
-convertor.h:462:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
-convertor.h:469:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
+convertor.h:413:7:bool Convertor::is_work()	16	static
+convertor.h:417:7:bool Convertor::is_start()	16	static
+convertor.h:421:7:void Convertor::equal_step()	16	static
+convertor.h:425:7:virtual void Convertor::notify()	16	static
+convertor.h:456:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	static
+convertor.h:463:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
+convertor.h:470:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
 can.h:191:6:void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*)	16	static
-driver.h:47:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
-driver.h:59:7:bool Driver::is_initial()	16	static
-driver.h:83:7:void Driver::operator()()	16	static
-main.cpp:86:5:int main()	760	static
+driver.h:51:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
+driver.h:65:7:bool Driver::is_initial()	16	static
+driver.h:92:7:virtual void Driver::notify()	16	static
+driver.h:104:7:void Driver::operator()()	16	static
+main.cpp:86:5:int main()	768	static
 main.cpp:170:6:void SystemClock_Config()	96	static
 main.cpp:216:13:void MX_ADC1_Init()	24	static
 main.cpp:277:13:void MX_ADC2_Init()	40	static
