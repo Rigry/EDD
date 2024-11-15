@@ -37,7 +37,7 @@ public:
 	      , led_red{led_red}, led_green{led_green}, open_in{open_in}, close_in{close_in}
 	      , open_out{open_out}, close_out{close_out}, open_fb{open_fb}, close_fb{close_fb}, end{end}
 	{
-
+		convertor.pusk();
 	}
 
 	void operator() () {

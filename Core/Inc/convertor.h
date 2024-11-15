@@ -221,7 +221,7 @@ public:
 	Timer timer;
 
 	void forward() {
-		new_km = service.outData.voltage_logic / 4095 * 1000;
+		new_km = float(service.outData.voltage_logic) / 4095 * 1000;
 
 		new_ARR = service.outData.voltage_drive * 10;
 

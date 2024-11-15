@@ -7,7 +7,7 @@
 const uint16_t qty_point{36};
 
 enum {CURRENT = 0};
-enum {VB = 0, VL = 1, VD = 2};
+enum {VD = 0, VB = 1, VL = 2};
 
 class ADC_ : TickSubscriber
 {
