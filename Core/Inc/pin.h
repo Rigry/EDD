@@ -1,12 +1,13 @@
 #pragma once
 
 class Pin {
+
 	GPIO_TypeDef* port;
 	uint16_t n;
 
 public:
 
-	Pin (GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {
+	 Pin (GPIO_TypeDef* GPIOx, uint16_t GPIO_Pin) {
 	    port = GPIOx;
 	    n = GPIO_Pin;
 	  }
