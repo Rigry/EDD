@@ -69,12 +69,6 @@ void Error_Handler(void);
 #define LED_GREEN_GPIO_Port GPIOA
 #define LED_CAN_Pin GPIO_PIN_4
 #define LED_CAN_GPIO_Port GPIOC
-#define holla_1_Pin GPIO_PIN_5
-#define holla_1_GPIO_Port GPIOC
-#define holla_2_Pin GPIO_PIN_0
-#define holla_2_GPIO_Port GPIOB
-#define holla_3_Pin GPIO_PIN_1
-#define holla_3_GPIO_Port GPIOB
 #define end_in_Pin GPIO_PIN_6
 #define end_in_GPIO_Port GPIOC
 #define error_holla_Pin GPIO_PIN_7
