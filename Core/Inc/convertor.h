@@ -213,7 +213,7 @@ public:
 	, en_holla{en_holla}, error_holla{error_holla}
 //	, phase_a_low{phase_a_low}, phase_b_low{phase_b_low}, phase_c_low{phase_c_low}
 	{
-		hallpos = ((HAL_GPIO_ReadPin(GPIOC, holla_1_Pin) << 2) | (HAL_GPIO_ReadPin(GPIOB, holla_2_Pin) << 1) | HAL_GPIO_ReadPin(GPIOB, holla_3_Pin));
+//		hallpos = ((HAL_GPIO_ReadPin(GPIOC, holla_1_Pin) << 2) | (HAL_GPIO_ReadPin(GPIOB, holla_2_Pin) << 1) | HAL_GPIO_ReadPin(GPIOB, holla_3_Pin));
 		en_holla = true;
 		stop();
 	}
@@ -345,7 +345,7 @@ void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef* hadc){
 }
 
 void HAL_GPIO_EXTI_Callback(uint16_t Holla){
-	if(Holla == holla_1_Pin or Holla == holla_2_Pin or Holla == holla_3_Pin) {
+//	if(Holla == holla_1_Pin or Holla == holla_2_Pin or Holla == holla_3_Pin) {
 		ext_holla_1_callback.interrupt();
-	}
+//	}
 }
