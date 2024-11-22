@@ -64,6 +64,11 @@ public:
 		led_green = not led_red;
 		convertor.forward();
 
+//		if(close_in)
+//			convertor.pusk();
+//		else
+//			convertor.stop();
+
 //		if(convertor.timer.timePassed() >= 100) {
 //			clamp = true;
 //			convertor.timer.stop();
