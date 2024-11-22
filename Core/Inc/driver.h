@@ -45,6 +45,7 @@ class Driver : TickSubscriber {
 	uint16_t power{0};
 	uint16_t max_power{0};
 	uint16_t time{0};
+	uint16_t time_save{0};
 
 public:
 
@@ -55,7 +56,7 @@ public:
 	      , led_red{led_red}, led_green{led_green}, open_in{open_in}, close_in{close_in}
 	      , open_out{open_out}, close_out{close_out}, open_fb{open_fb}, close_fb{close_fb}, end{end}
 	{
-		init.start(1'000);
+		init.start(3'000);
 		open_out = true;
 		close_out = true;
 		subscribed = false;
@@ -97,6 +98,15 @@ public:
 				power++;
 				if(power >= max_power) power = max_power;
 				convertor.power(power);
+			}
+		}
+		if(door == driver) {
+			if(time_save++ >= 10'000) {
+				time_save = 0;
+				if(state == closing or state == opening) {
+					convertor.stop();
+//					state = wait;
+				}
 			}
 		}
 	}

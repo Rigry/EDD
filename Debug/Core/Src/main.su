@@ -77,10 +77,10 @@ convertor.h:456:6:void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef*)	16	stat
 convertor.h:463:6:void HAL_ADC_LevelOutOfWindowCallback(ADC_HandleTypeDef*)	16	static
 convertor.h:470:6:void HAL_GPIO_EXTI_Callback(uint16_t)	16	static
 can.h:191:6:void HAL_CAN_RxFifo0MsgPendingCallback(CAN_HandleTypeDef*)	16	static
-driver.h:51:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
-driver.h:65:7:bool Driver::is_initial()	16	static
-driver.h:92:7:virtual void Driver::notify()	16	static
-driver.h:104:7:void Driver::operator()()	16	static
+driver.h:52:2:Driver::Driver(CAN<In_id, Out_id>&, Service<In_data, Out_data>&, Convertor&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&, Pin&)	24	static
+driver.h:66:7:bool Driver::is_initial()	16	static
+driver.h:93:7:virtual void Driver::notify()	16	static
+driver.h:114:7:void Driver::operator()()	16	static
 main.cpp:86:5:int main()	768	static
 main.cpp:170:6:void SystemClock_Config()	96	static
 main.cpp:216:13:void MX_ADC1_Init()	24	static
