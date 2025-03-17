@@ -35,6 +35,7 @@ class Driver : TickSubscriber {
 
 	bool first_time{true};
 	bool need_open{false};
+	bool keep{false};
 
 	uint16_t time_clamp{150}; // was 120
 	uint8_t qty_step{195};
@@ -42,6 +43,7 @@ class Driver : TickSubscriber {
 
 	Timer init;
 	Timer delay;
+	Timer keep_time;
 	uint16_t power{0};
 	uint16_t max_power{0};
 	uint16_t time{0};
@@ -155,7 +157,7 @@ public:
 //		}
 		if (is_initial()) {
 
-		if( service.outData.current > 500 and convertor.is_work() and not need_open
+		if( service.outData.current > 550 and convertor.is_work() and not need_open
 		or ( /*abs(convertor.steps()) > 30 and abs(convertor.steps()) < 180*/
 				convertor.is_start()  and convertor.speed < 3 and not clamp_open and convertor.is_work()) and not need_open
 		 ) {
@@ -171,10 +173,10 @@ public:
 //			going.stop();
 
 			if(state == closing) {
-//				convertor.stop();
-//				state = alarm;
+				convertor.current_stop();
+				state = wait;
 //				clamp_close = true;
-				clamp = false;
+//				clamp = false;
 //				delay.start(300);
 			} else if(state == opening) {
 				convertor.stop();
@@ -209,7 +211,14 @@ public:
 		switch(state) {
 			case wait:
 				if(end) {convertor.reset_steps(); convertor.fix();}
-				if((abs(convertor.steps()) >= (185) or fix)) {
+				if( ( (abs(convertor.steps()) >= 185 or fix) and keep) ) {
+					if(not keep_time.isCount()) {
+						keep_time.start(600'000);
+					}
+					if (keep_time.done()) {
+						keep = false;
+						keep_time.stop();
+					}
 					switch (door) {
 						case driver:
 							convertor.current_fix();
@@ -251,6 +260,7 @@ public:
 						case not_door:
 							break;
 						}
+						keep = false;
 						state = opening; fix = false;/*going.start(5);*/ // back для водителя forward для пассажира // 60 passenger 90 driver
 					} else if( ( close_in or (can.inID.control.close_passenger  and (door == single_pass or door == double_pass) and not can.inID.control.open_passenger)
 							              or (can.inID.control.close_driver and door == driver) and not can.inID.control.open_driver) and not end and not clamp and not clamp_close ) {
@@ -280,7 +290,7 @@ public:
 						state = closing; // // forward для водителя  back для пассажира
 //						going.start(5);
 					} else if ( (not open_in and not close_in and not can.inID.control.close_passenger and not can.inID.control.open_passenger) /*and (not can.inID.control.open and not can.inID.control.close)*/ ){
-						clamp = false;  clamp_open = false; clamp_close = false;
+						clamp = false;  clamp_open = false; clamp_close = false; begin = false;
 					} else if (clamp_open and clamp_close and abs(convertor.steps()) <= (185) ){
 						 convertor.stop();
 						 power = 0;
@@ -303,9 +313,10 @@ public:
 				if(door == driver) {
 					if ((not open_in and not can.inID.control.open_driver) or abs(convertor.steps()) >= (qty_step)) {
 						state = wait;
+						keep = true;
 //					clamp = false; clamp_open = false;
 //					convertor.stop();
-						convertor.current_fix();
+//						convertor.current_fix();
 //					convertor.power(20);
 						if (abs(convertor.steps()) >= (180)) {
 							begin = true;
@@ -315,6 +326,7 @@ public:
 				} else if (door == single_pass or door == double_pass) {
 					if ((not open_in and not can.inID.control.open_passenger) or abs(convertor.steps()) >= (qty_step)) {
 						state = wait;
+						keep = true;
 //					clamp = false; clamp_open = false;
 //					convertor.stop();
 //					power = 0;
@@ -378,6 +390,7 @@ public:
 			case clamp_opening:
 				if( abs(convertor.steps()) >= (190) or service.outData.current > 150) {
 									state = wait;
+									keep = true;
 				//					clamp = false; clamp_open = false;
 				//					convertor.stop();
 									fix = true;
@@ -437,6 +450,7 @@ public:
 						break;
 					}
 					state = clamp_opening;
+					keep = false;
 					clamp = false; // back for driver
 				}
 
