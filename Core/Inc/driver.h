@@ -62,13 +62,14 @@ public:
 
 		led_red = not enable;
 		led_green = not led_red;
-		convertor.forward();
+//		convertor.forward();
 
-//		if(close_in)
+		if(close_in) {
+			convertor.forward();}
 //			convertor.pusk();
-//		else
+//		} else if(not close_in) {
 //			convertor.stop();
-
+//		}
 //		if(convertor.timer.timePassed() >= 100) {
 //			clamp = true;
 //			convertor.timer.stop();

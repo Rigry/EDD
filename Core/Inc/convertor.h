@@ -86,9 +86,13 @@ class Convertor {
 
 		km += (new_km - km) * 10 / 40;
 
-		TIM1->CCR1 = km * sin_table[m++] / 1000;
-		TIM1->CCR2 = km * sin_table[k++] / 1000;
-		TIM1->CCR3 = km * sin_table[n++] / 1000;
+//		TIM1->CCR1 = km * 7199 / 1000;
+
+		TIM1->CCR1 = TIM1->ARR / 2;
+
+//		TIM1->CCR1 = km * sin_table[m++] / 1000;
+//		TIM1->CCR2 = km * sin_table[k++] / 1000;
+//		TIM1->CCR3 = km * sin_table[n++] / 1000;
 
 		if (k >= qty_point) {k = 0;}
 		if (m >= qty_point) {m = 0;}
@@ -225,7 +229,9 @@ public:
 
 		new_ARR = service.outData.voltage_drive * 10;
 
-		TIM3->ARR += (new_ARR - TIM3->ARR) * 10 / 40;
+		TIM1->ARR += (new_ARR - TIM1->ARR) * 10 / 40;
+
+//		TIM1->ARR = 7199;
 	}
 
 	void forward_step(){
@@ -282,11 +288,11 @@ public:
 		km = 5;
 
 		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_1);
-		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
-		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
-		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
-		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
+//		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_1);
+//		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_2);
+//		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_2);
+//		HAL_TIM_PWM_Start(&htim1, TIM_CHANNEL_3);
+//		HAL_TIMEx_PWMN_Start(&htim1, TIM_CHANNEL_3);
 
 		HAL_TIM_Base_Start_IT (&htim3);
 
