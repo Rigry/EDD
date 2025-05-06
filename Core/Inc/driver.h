@@ -96,14 +96,13 @@ public:
 		if(state == opening or state == closing) {
 			if(time++ >= 4) {
 				time = 0;
-				power++;
-				power++;
+				power+=3;
 				if(power >= max_power) power = max_power;
 				convertor.power(power);
 			}
 		}
 //		if(door == driver) {
-			if(time_save++ >= 3'000) {
+			if(time_save++ >= 2'000) {
 				time_save = 0;
 				if(state == closing) {
 					convertor.stop();
