@@ -64,8 +64,9 @@ public:
 		led_green = not led_red;
 //		convertor.forward();
 
-		if(close_in) {
-			convertor.forward();}
+//		if(close_in) {
+			convertor.forward();
+//	}
 //			convertor.pusk();
 //		} else if(not close_in) {
 //			convertor.stop();
